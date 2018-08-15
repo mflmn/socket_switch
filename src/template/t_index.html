@@ -1,0 +1,429 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>zigbee control</title>
+    <link rel="stylesheet" type="text/css" href="../../style/list.css"/>
+<script type="text/javascript" src="../../style/jquery-1.7.2.min.js"></script>
+</head>
+
+<body class="body_index">
+<div class="input_join">
+    <input type="button" id="btn" class="btn_mfyzm" value="允许加入网路" />
+   <script type="text/javascript">
+    var wait=180;
+    document.getElementById("btn").disabled = false;
+    function time(o) {
+        if (wait == 0) {
+            o.removeAttribute("disabled");
+            o.value="允许加入网路";
+            wait = 180;
+        } else {
+            if (wait == 180){
+                $.ajax({
+                'url' : '/join',
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert(msg);
+                },
+                'success' : function(result) {
+                    console.log("success");
+                }
+            });
+
+            }
+            o.setAttribute("disabled", true);
+            o.value="time:(" + wait + ")";
+            wait--;
+            setTimeout(function() {
+                time(o)
+            },
+            1000)
+        }
+    }
+document.getElementById("btn").onclick=function(){time(this);}
+</script>
+</div>
+
+<div class="device"></div>
+
+<script>
+    //$('.close').click(function(event){
+    //$(this).parent().remove();
+    //})
+
+    $(".close").live("click",function(){
+        $(this).parent().remove();
+    });
+
+    $(".switch_area :button").live("click",function(){
+        var name = $(this).attr("name");
+        var id = $(this).closest(".device").attr("id");
+        //alert(id);
+        $.ajax({
+                'url' : '/command?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert(msg);
+                },
+                'success' : function(result) {
+                    console.log("success");
+                    //console.log(event.data);
+                }
+            });
+        //$(this).parent().remove();
+    });
+
+    $(".switch_area_time :button").live("click",function(){
+        var na = $(this).attr("value");
+        var name = $(this).attr("name");
+        var id = $(this).closest(".device").attr("id");
+        time1(this, na, name, id);
+        console.log(na);
+    });
+    var wait1=60;
+    function time1(o1, na, name, id) {
+        if (wait1 == 0) {
+            o1.removeAttribute("disabled");
+            o1.value=na;
+            wait1 = 60;
+            console.log(na);
+            $.ajax({
+                'url' : '/command?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    console.log(msg);
+                },
+                'success' : function(result) {
+                    console.log("success");
+                }
+            });
+        } else {
+            o1.setAttribute("disabled", true);
+            o1.value="time:(" + wait1 + ")";
+            wait1--;
+            setTimeout(function() {
+                time1(o1, na, name, id)
+            },
+            1000)
+        }
+    }
+</script>
+
+<script>
+$(document).ready(function() {
+    webSocket = new WebSocket('ws://'+'192.168.230.139:8080'+'/startWS');
+    //webSocket = new WebSocket('ws://'+'192.168.1.11:8080'+'/startWS');
+    webSocket.onerror = function (event) {
+      onError(event);
+    };
+    webSocket.onopen = function (event) {
+      onOpen(event);
+    };
+    webSocket.onmessage = function (event) {
+      onMessage(event);
+    };
+});
+
+function onError(event){
+
+}
+function onOpen(event){
+    webSocket.send("brower msg");//
+}
+
+function addSwith(obj){
+    var switchOne = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="1@1@1" value="on"/>\
+                                    <input type="button" name="1@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" size="100" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>开关:'+obj.Address+'</p>\
+                    </div>'
+
+    var switchTwo = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="2@1@1" value="on"/>\
+                                    <input type="button" name="2@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="2@2@1" value="on"/>\
+                                    <input type="button" name="2@2@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="2@0@1" value="全开"/>\
+                                    <input type="button" name="2@0@0" value="全关"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>开关:'+obj.Address+'</p>\
+                    </div>'
+    var switchThree = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@1@1" value="on"/>\
+                                    <input type="button" name="3@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@2@1" value="on"/>\
+                                    <input type="button" name="3@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="全开"/>\
+                                    <input type="button" name="3@0@0" value="全关"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_time">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="1分钟全开"/>\
+                                    <input type="button" name="3@0@0" value="1分钟全关"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>开关:'+obj.Address+'</p>\
+                    </div>'
+    if(obj.DeviceType == "1101"){
+        $(".device:last").after(switchOne);
+    }
+    else if(obj.DeviceType == "1102"){
+        //alert("12");
+        $(".device:last").after(switchTwo);
+    }
+    else if(obj.DeviceType == "1103"){
+        $(".device:last").after(switchThree);
+    }
+    //console.log(event.data);
+    //$(":text").val(obj.State);
+    //$(".device:last").after(divStr);:input[name='keleyi']
+    /*
+    if (obj.hasOwnProperty("State")){
+        newId = "#" + obj.Address + " :input[name='st']";
+        //alert(newId);
+        //var sub = eval('(' + obj.State + ')');
+        //alert(sub);
+        var point = obj.EndpointId;
+        var output ='第' +point+ '开关,'+'状态:' + obj.State.State;
+        $(newId).val(output);
+    }*/
+
+    //$("body").on("click", ".close", function{\
+        //$(newId).remove();
+    //});
+    //$(".device:last").after(divStr);
+    //$(".device:last").append(divStr);
+}
+
+function changeStatus(obj){
+
+    if (obj.hasOwnProperty("State")){
+        newId = "#" + obj.Address + " :input[name='st']";
+        //alert(newId);
+        //var sub = eval('(' + obj.State + ')');
+        //alert(sub);
+        var point = obj.EndpointId;
+        var output ='第' +point+ '开关,'+'状态:' + obj.State.State;
+        $(newId).val(output);
+    }
+}
+
+function addSocket(obj){
+    var socketThree = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="5@1@1" value="on"/>\
+                                    <input type="button" name="5@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="6@1@1" value="童锁打开"/>\
+                                    <input type="button" name="6@1@0" value="童锁关闭"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>三孔插座:'+obj.Address+'</p>\
+                    </div>'
+    var socketFive = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="5@1@1" value="on"/>\
+                                    <input type="button" name="5@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="6@1@1" value="童锁打开"/>\
+                                    <input type="button" name="6@1@0" value="童锁关闭"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>五孔插座:'+obj.Address+'</p>\
+                    </div>'
+
+    if(obj.DeviceType == "1003"){
+        $(".device:last").after(socketThree);
+    }
+    else if(obj.DeviceType == "1005"){
+        //alert("12");
+        $(".device:last").after(socketFive);
+    }
+
+    //$(".device:last").after(socketOne);
+}
+
+function changeSocketStatus(obj){
+
+    if (obj.hasOwnProperty("State")){
+        newId = "#" + obj.Address + " :input[name='st']";
+        //var point = obj.EndpointId;
+        var output ='插座通电状态:' + obj.State.State;
+        $(newId).val(output);
+    }
+}
+
+
+/*
+{"Action":"ReportJoin","Address":"000D6F00104F27E3",\
+"Reporting":"300","DeviceType":"1202","ModelId":"RC-EM"}
+    var divStr = '<div class="device" id="' + obj.address + '">\
+                    <span class="close"></span>\
+                    <div class="op_area">\
+                        <input type="button" value="on"/>\
+                        <input type="button" value="off"/>\
+                        <input type="text" value="real state"/>\
+                    </div>\
+                    <p>device title5</p>\
+                 </div>'
+                 1@1@1 jiwei endpoint on/off
+*/
+function onMessage(event){
+    //alert(event.data);
+    var obj = eval('(' + event.data + ')');
+
+    var action = obj.Action;
+    if(action == 'ReportJoin')
+    {
+        var type = obj.DeviceType;
+        //var type = obj.deviceType;
+        switch(type)
+        {
+            case '1101':
+            case '1102':
+            case '1103':
+                addSwith(obj);
+                break;
+            case '1003':
+            case '1005':
+                addSocket(obj);
+                break;
+            default:
+                alert(type);
+                break;
+        }
+    }
+    else if (action == 'leave')
+    {
+        mac = "#" + obj.Address
+        console.log(mac);
+        $(mac).remove();
+    }
+    /*
+    else
+    {
+        stateType = obj.StateType;
+        if( stateType == '0207')
+        {
+            changeStatus(obj);
+        }
+        else if( stateType == '0202')
+        {
+            changeSocketStatus(obj);
+        }
+        else
+        {
+            console.log("unknow status");
+            console.log(stateType);
+        }
+    }
+    */
+}
+</script>
+</body>
+</html>

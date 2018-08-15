@@ -1,0 +1,12 @@
+*/.idea/
+.idea/
+*.log
+*.pyc
+
+/MANIFEST
+/build/
+/dist/
+/doc/_build/
+*.pyc
+tornado_proxy/.idea/
+env/
