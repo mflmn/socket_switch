@@ -4,6 +4,7 @@
 from lib.route import route
 from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler
+import json
 
 socket_handlers = set()
 JOIN_TOPIC = '/network/join'
@@ -37,11 +38,23 @@ class WSHandler(WebSocketHandler):
         print 'open ws.....'
         global socket_handlers
         socket_handlers.add(self)
-        self.application.mqttClient.publish("test", "ppp MQTT", qos=0, retain=False)
+        # self.application.mqttClient.publish("test", "ppp MQTT", qos=0, retain=False)
         self.write_message("send ws msg")
 
     def on_message(self, message):
         print 'recive ws msg ....'
+        macMap = self.application.macMap
+        print "cache:macMap:%s" % macMap
+        for k, v in macMap.items():
+            msg = {}
+            print "add new device to front end from cache####"
+            msg['Action'] = 'ReportJoin'
+            msg['DeviceType'] = v['deviceType']
+            print "cache:devcie:%s" % v
+            msg['Address'] = k
+            msgStr = json.dumps(msg)
+
+            self.write_message(msgStr)
 
     def on_close(self):
         print 'close ws....'

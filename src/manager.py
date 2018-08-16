@@ -152,7 +152,6 @@ def addDevice(mac, deviceType):
 
 def handleResp(msg):
     global macMap
-    print macMap
     obj = json.loads(msg)
     if obj.has_key('commandData'):
         print 'zcl parse==='
@@ -164,19 +163,25 @@ def handleResp(msg):
             if macMap.has_key(mac) and macMap[mac]['new']:
                 if modelId == '53323130302D453831302D31303033':
                     deviceType = '1103'
+                    macMap[mac]['deviceType'] = '1103'
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453830392D31303032':
                     deviceType = '1102'
+                    macMap[mac]['deviceType'] = '1102'
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453830382D31303031':
                     deviceType = '1101'
+                    macMap[mac]['deviceType'] = '1101'
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453831322D35313031':
                     deviceType = '1005'
+                    macMap[mac]['deviceType'] = '1005'
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453831332D35313032':
                     deviceType = '1003'
+                    macMap[mac]['deviceType'] = '1003'
                     addDevice(mac, deviceType)
+    print macMap
                     # msg = {}
                     # print "start pub new device####"
                     # msg['Action'] = 'ReportJoin'
