@@ -150,13 +150,42 @@ def addDevice(mac, deviceType):
     macMap[mac]['new'] = False
 
 
+def changeStatus(payload):
+    # {"clusterId": "0x0B04", "attributeId": "0x0508", "attributeBuffer": "0x7400",
+    #  "attributeDataType": "0x21",
+    #  "deviceEndpoint": {"eui64": "0xD0CF5EFFFEF4E4A3", "endpoint": 1}}
+    mac = payload['deviceEndpoint']['eui64']
+    val = payload['attributeBuffer']
+    type = payload['attributeId']
+    low = int(val[2:4], 16)
+    high = int(val[4:6], 16)*256
+    value = float(high + low)
+    # 0X0508电流
+    # 0X050B功率
+    # 0X0505电压
+    # 0X0300电量
+    if type == '0x0505':
+        value = value / 10
+    msg = {}
+    msg['Address'] = mac
+    msg['State'] = value
+    msg['type'] = 'socket'
+    msg['subType'] = type
+    msg['Action'] = 'update'
+    msgStr = json.dumps(msg)
+    print "change status:%s" % msgStr
+    IndexmHandler.send_message(msgStr)
+
+
 def handleResp(msg):
     global macMap
     obj = json.loads(msg)
+    clusterId = None if not obj.has_key("clusterId") else obj["clusterId"]
     if obj.has_key('commandData'):
         print 'zcl parse==='
         mac = obj['deviceEndpoint']['eui64']
         data = obj['commandData']
+
         if len(data) > 12:
             modelId = data[12:]
             print 'hanlerResp:buf data:%s' % data
@@ -181,6 +210,8 @@ def handleResp(msg):
                     deviceType = '1003'
                     macMap[mac]['deviceType'] = '1003'
                     addDevice(mac, deviceType)
+    elif clusterId == '0x0B04':
+        changeStatus(obj)
     print macMap
                     # msg = {}
                     # print "start pub new device####"

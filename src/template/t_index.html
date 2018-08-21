@@ -119,7 +119,7 @@ document.getElementById("btn").onclick=function(){time(this);}
 
 <script>
 $(document).ready(function() {
-    webSocket = new WebSocket('ws://'+'192.168.230.139:8080'+'/startWS');
+    webSocket = new WebSocket('ws://'+'192.168.230.140:8080'+'/startWS');
     //webSocket = new WebSocket('ws://'+'192.168.1.11:8080'+'/startWS');
     webSocket.onerror = function (event) {
       onError(event);
@@ -299,7 +299,11 @@ function addSocket(obj){
                             </div>\
                             <div class="clear"></div>\
                             <div class="state_area">\
-                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                电流:<input type="text" size="45" name="at" value="0"/>\
+                                <br>\
+                                功率:<input type="text" size="45" name="wt" value="0"/>\
+                                <br>\
+                                电压:<input type="text" size="45" name="vt" value="0"/>\
                                 <br>\
                                 指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
                             </div>\
@@ -323,7 +327,11 @@ function addSocket(obj){
                             </div>\
                             <div class="clear"></div>\
                             <div class="state_area">\
-                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                电流:<input type="text" size="45" name="at" value="0"/>\
+                                <br>\
+                                功率:<input type="text" size="45" name="wt" value="0"/>\
+                                <br>\
+                                电压:<input type="text" size="45" name="vt" value="0"/>\
                                 <br>\
                                 指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
                             </div>\
@@ -349,13 +357,30 @@ function addSocket(obj){
 }
 
 function changeSocketStatus(obj){
-
+    subType = obj.subType
+    if(subType == '0x0508'){
+        newId = "#" + obj.Address + " :input[name='at']";
+        var output = obj.State + ' mA';
+        $(newId).val(output);
+    }
+    else if (subType == '0x050B'){
+        newId = "#" + obj.Address + " :input[name='wt']";
+        var output = obj.State + ' W';
+        $(newId).val(output);
+    }
+    else if (subType == '0x0505'){
+        newId = "#" + obj.Address + " :input[name='vt']";
+        var output = obj.State + ' V';
+        $(newId).val(output);
+    }
+    /*
     if (obj.hasOwnProperty("State")){
         newId = "#" + obj.Address + " :input[name='st']";
         //var point = obj.EndpointId;
         var output ='插座通电状态:' + obj.State.State;
         $(newId).val(output);
     }
+    */
 }
 
 
@@ -404,16 +429,16 @@ function onMessage(event){
         console.log(mac);
         $(mac).remove();
     }
-    /*
-    else
+    else if (action == 'update')
     {
-        stateType = obj.StateType;
+        stateType = obj.type;
         if( stateType == '0207')
         {
             changeStatus(obj);
         }
-        else if( stateType == '0202')
+        else if( stateType == 'socket')
         {
+            console.log("start change socket status");
             changeSocketStatus(obj);
         }
         else
@@ -422,7 +447,6 @@ function onMessage(event){
             console.log(stateType);
         }
     }
-    */
 }
 </script>
 </body>
