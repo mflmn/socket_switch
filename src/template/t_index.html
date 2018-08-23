@@ -48,7 +48,56 @@ document.getElementById("btn").onclick=function(){time(this);}
 </script>
 </div>
 
+        <div id="light" class="white_content">
+            <p>双控配置</p>
+            场景开关列表：
+        <select id="link" >
+        </select>
+        设备列表：
+        <select id="link1" >
+        </select>
+        <input id="bindbtn" type="button" value="绑定"/>
+            <p></p>
+            <a href = "javascript:void(0)" onclick = "document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'">关闭</a>
+        </div>
+        <div id="fade" class="black_overlay"></div>
+
 <div class="device"></div>
+
+<div class="device" id="1111111">
+    <span class="close"></span>
+    <div class="op_area">
+        <div class="switch_area">
+            <div class="switch">
+                <input type="button" name="2@1@1" value="on"/>
+                <input type="button" name="2@1@0" value="off"/>
+            </div>
+            <div class="switch">
+                <input type="button" name="2@2@1" value="on"/>
+                <input type="button" name="2@2@0" value="off"/>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div class="state_area">
+            设备当前状态:<input type="text" size="45" name="st" value="device state"/>
+            <br>
+            指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>
+        </div>
+        <div class="switch_area_scen">
+            <div class="switch">
+                <input type="button" name="4@1@1" value="双控配置"/>
+                <input type="button" name="4@1@0" value="场景配置"/>
+            </div>
+        </div>
+        <div class="switch_area">
+            <div class="switch">
+                <input type="button" name="2@0@1" value="全开"/>
+                <input type="button" name="2@0@0" value="全关"/>
+            </div>
+        </div>
+    </div>
+    <p>场景开关:111111</p>
+</div>
 
 <script>
     //$('.close').click(function(event){
@@ -57,6 +106,26 @@ document.getElementById("btn").onclick=function(){time(this);}
 
     $(".close").live("click",function(){
         $(this).parent().remove();
+    });
+
+    $("#bindbtn").live("click",function(){
+        var key = $("#link").find("option:selected").text();
+        var device = $("#link1").find("option:selected").text();
+        console.log(key);
+        console.log(device);
+        $.ajax({
+                'url' : '/bind?key='+key+'&device='+device,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert("bind failed");
+                },
+                'success' : function(result) {
+                    console.log("bind success");
+                    //console.log(event.data);
+                }
+            });
     });
 
     $(".switch_area :button").live("click",function(){
@@ -115,6 +184,47 @@ document.getElementById("btn").onclick=function(){time(this);}
             1000)
         }
     }
+
+
+    $(".switch_area_scen :button").live("click",function(){
+        var name = $(this).attr("name");
+        var id = $(this).closest(".device").attr("id");
+        document.getElementById('light').style.display='block';
+        document.getElementById('fade').style.display='block';
+        //alert(id);
+
+        $.ajax({
+                'url' : '/getDevices?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert("get device error");
+                },
+                'success' : function(result) {
+                    console.log("success");
+                    console.log(result);
+                    console.log(result.keys);
+                    $("#link").empty();
+                    for(var i =0; i < result.keys.length; i++)
+                    {
+                        str = '<option>' + result.keys[i] + '</option>'
+                        $("#link").append(str);
+                    }
+                    $("#link1").empty();
+                    for(var i =0; i < result.devices.length; i++)
+                    {
+                        str = '<option>' + result.devices[i] + '</option>'
+                        $("#link1").append(str);
+                    }
+                }
+            });
+        //$(this).parent().remove();
+    });
+
+function setDeviceList(obj){
+    console.log("set device list");
+}
 </script>
 
 <script>
@@ -418,6 +528,9 @@ function onMessage(event){
             case '1005':
                 addSocket(obj);
                 break;
+            case '2002':
+                addScenarioSwitch(obj);
+                break;
             default:
                 alert(type);
                 break;
@@ -446,6 +559,121 @@ function onMessage(event){
             console.log("unknow status");
             console.log(stateType);
         }
+    }
+}
+
+function addScenarioSwitch(obj){
+    var sswitchOne = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="1@1@1" value="on"/>\
+                                    <input type="button" name="1@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" size="100" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>场景开关:'+obj.Address+'</p>\
+                    </div>'
+
+    var sswitchTwo = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="2@1@1" value="on"/>\
+                                    <input type="button" name="2@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="2@2@1" value="on"/>\
+                                    <input type="button" name="2@2@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="2@0@1" value="全开"/>\
+                                    <input type="button" name="2@0@0" value="全关"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>场景开关:'+obj.Address+'</p>\
+                    </div>'
+    var sswitchThree = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@1@1" value="on"/>\
+                                    <input type="button" name="3@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@2@1" value="on"/>\
+                                    <input type="button" name="3@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="全开"/>\
+                                    <input type="button" name="3@0@0" value="全关"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_time">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="1分钟全开"/>\
+                                    <input type="button" name="3@0@0" value="1分钟全关"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>场景开关:'+obj.Address+'</p>\
+                    </div>'
+    if(obj.DeviceType == "2001"){
+        $(".device:last").after(sswitchOne);
+    }
+    else if(obj.DeviceType == "2002"){
+        $(".device:last").after(sswitchTwo);
+    }
+    else if(obj.DeviceType == "2003"){
+        $(".device:last").after(s0switchThree);
     }
 }
 </script>

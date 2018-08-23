@@ -193,23 +193,43 @@ def handleResp(msg):
                 if modelId == '53323130302D453831302D31303033':
                     deviceType = '1103'
                     macMap[mac]['deviceType'] = '1103'
+                    macMap[mac]['keys'] = ['1', '2', '3']
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453830392D31303032':
                     deviceType = '1102'
                     macMap[mac]['deviceType'] = '1102'
+                    macMap[mac]['keys'] = ['1', '2']
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453830382D31303031':
                     deviceType = '1101'
                     macMap[mac]['deviceType'] = '1101'
+                    macMap[mac]['keys'] = ['1']
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453831322D35313031':
                     deviceType = '1005'
                     macMap[mac]['deviceType'] = '1005'
+                    macMap[mac]['keys'] = ['1']
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453831332D35313032':
                     deviceType = '1003'
                     macMap[mac]['deviceType'] = '1003'
+                    macMap[mac]['keys'] = ['1']
                     addDevice(mac, deviceType)
+                elif modelId == '53323130302d453831342d30343031':
+                    print "one scenario switch"
+                elif modelId == '53323130302d453831352d30343032':
+                    print "two scenario switch"
+                    deviceType = '2002'
+                    macMap[mac]['deviceType'] = '2002'
+                    macMap[mac]['keys'] = ['1', '2']
+                    addDevice(mac, deviceType)
+                elif modelId == '53323130302d453831362d30343033':
+                    print "three scenario switch"
+                    # deviceType = '1003'
+                    # macMap[mac]['deviceType'] = '1003'
+                    # addDevice(mac, deviceType)
+                else:
+                    print "unknow model id:%s" % modelId
     elif clusterId == '0x0B04':
         changeStatus(obj)
     print macMap

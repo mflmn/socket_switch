@@ -48,6 +48,10 @@ border: 1px solid #dddddd;
 clear:both;
 }
 
+.ldevices{
+border: 0px solid #dddddd;
+}
+
 .close{
 float:right;
 right:10px;
@@ -99,4 +103,31 @@ right:10px;
 
  transform: rotate(270deg);
 
+}
+
+.black_overlay{
+    display: none;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index:1001;
+    -moz-opacity: 0.8;
+    opacity:.80;
+    filter: alpha(opacity=88);
+}
+.white_content {
+    display: none;
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 55%;
+    height: 55%;
+    padding: 20px;
+    border: 10px solid black;
+    background-color: white;
+    z-index:1002;
+    overflow: auto;
 }

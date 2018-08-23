@@ -29,6 +29,7 @@ class IndexmHandler(RequestHandler):
 
     def get(self):
         self.render('t_index.html')
+        # self.render('test.html')
 
 
 @route(r'/startWS', name='startWS')
@@ -70,6 +71,63 @@ class JoinNetworkHandler(RequestHandler):
         print "join pub msg"
         joinMsg = '{"commands":[{"command":"plugin network-creator-security open-network","postDelayMs":100}]}'
         self.application.mqttClient.publish(JOIN_TOPIC_SI, joinMsg, qos=0, retain=False)
+
+
+@route(r'/getDevices', name='getDevices')
+class DevicesHandler(RequestHandler):
+    def get(self):
+        print "getDevices"
+        # {"Address": "000D6F0011002B5F", "GroupId": "0",
+        #  "EndpointId": "1", "CommandType": "0106",
+        #  "Command": {"Type": "1101", "State": "1"}}
+        address = self.get_argument("address", None)
+        macMap = self.application.macMap
+        macMap = {'0x1111111':{'keys':['1','2','3']}}
+        address = '0x%s' % address
+        keys = self.getDeviceKeysById(address)
+        # print "DevicesHandler:address:%s" % address
+        device = []
+        for item in macMap.keys():
+            device = device + self.getDeviceKeysById(item)
+        # keys = macMap[address]['keys']
+        # keys = ['1', '2', '3']
+        # for i in range(0, len(keys)):
+        #     keys[i] = address + keys[i]
+        # print "keys:%s" % keys
+        ret = {}
+        ret['keys'] = keys
+        ret['devices'] = device
+        msgStr = json.dumps(ret)
+        self.write(ret)
+        # cmd = self.get_argument("cmd", None)
+        # cmdParse = cmd.split("@")
+    def getDeviceKeysById(self, address):
+        macMap = self.application.macMap
+        macMap = {'0x1111111': {'keys': ['1', '2', '3']}}
+        print "DevicesHandler:address:%s" % address
+        keys = macMap[address]['keys']
+        keys = ['1', '2', '3']
+        for i in range(0, len(keys)):
+            keys[i] = address + '@' + keys[i]
+        print "keys:%s" % keys
+        return keys
+
+
+@route(r'/bind', name='bind')
+class BindHandler(RequestHandler):
+    def get(self):
+        print "bind"
+        # {"Address": "000D6F0011002B5F", "GroupId": "0",
+        #  "EndpointId": "1", "CommandType": "0106",
+        #  "Command": {"Type": "1101", "State": "1"}}
+        key = self.get_argument("key", None)
+        device = self.get_argument("device", None)
+        ret = {}
+        ret['keys'] = [1111, 2222, 3333]
+        ret['devices'] = ['a1', 'a2', 'b1']
+        msgStr = json.dumps(ret)
+        self.write(ret)
+
 
 @route(r'/command', name='command')
 class CommandHandler(RequestHandler):
