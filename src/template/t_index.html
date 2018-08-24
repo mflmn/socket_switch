@@ -57,6 +57,7 @@ document.getElementById("btn").onclick=function(){time(this);}
         <select id="link1" >
         </select>
         <input id="bindbtn" type="button" value="绑定"/>
+        <input id="unbindbtn" type="button" value="解绑"/>
             <p></p>
             <a href = "javascript:void(0)" onclick = "document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'">关闭</a>
         </div>
@@ -78,21 +79,10 @@ document.getElementById("btn").onclick=function(){time(this);}
             </div>
         </div>
         <div class="clear"></div>
-        <div class="state_area">
-            设备当前状态:<input type="text" size="45" name="st" value="device state"/>
-            <br>
-            指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>
-        </div>
         <div class="switch_area_scen">
             <div class="switch">
                 <input type="button" name="4@1@1" value="双控配置"/>
                 <input type="button" name="4@1@0" value="场景配置"/>
-            </div>
-        </div>
-        <div class="switch_area">
-            <div class="switch">
-                <input type="button" name="2@0@1" value="全开"/>
-                <input type="button" name="2@0@0" value="全关"/>
             </div>
         </div>
     </div>
@@ -122,7 +112,29 @@ document.getElementById("btn").onclick=function(){time(this);}
                     alert("bind failed");
                 },
                 'success' : function(result) {
+                    alert("bind success");
                     console.log("bind success");
+                    //console.log(event.data);
+                }
+            });
+    });
+
+    $("#unbindbtn").live("click",function(){
+        var key = $("#link").find("option:selected").text();
+        var device = $("#link1").find("option:selected").text();
+        console.log(key);
+        console.log(device);
+        $.ajax({
+                'url' : '/unbind?key='+key+'&device='+device,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert("unbind failed");
+                },
+                'success' : function(result) {
+                    alert("unbind success");
+                    console.log("unbind success");
                     //console.log(event.data);
                 }
             });
@@ -199,6 +211,8 @@ document.getElementById("btn").onclick=function(){time(this);}
                 'cache' : false,
                 'dataType' : 'json',
                 'error': function (msg) {
+                    $("#link").empty();
+                    $("#link1").empty();
                     alert("get device error");
                 },
                 'success' : function(result) {
@@ -511,6 +525,7 @@ function changeSocketStatus(obj){
 function onMessage(event){
     //alert(event.data);
     var obj = eval('(' + event.data + ')');
+    console.log(obj);
 
     var action = obj.Action;
     if(action == 'ReportJoin')
@@ -573,19 +588,14 @@ function addScenarioSwitch(obj){
                                 </div>\
                             </div>\
                             <div class="clear"></div>\
-                            <div class="state_area">\
-                                设备当前状态:<input type="text" size="45" size="100" name="st" value="device state"/>\
-                                <br>\
-                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
-                            </div>\
-                            <div class="switch_area">\
+                            <div class="switch_area_scen">\
                                 <div class="switch">\
-                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
-                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                    <input type="button" name="4@1@1" value="双控配置"/>\
+                                    <input type="button" name="4@1@0" value="场景配置"/>\
                                 </div>\
                             </div>\
                         </div>\
-                        <p>场景开关:'+obj.Address+'</p>\
+                        <p>一位场景开关:'+obj.Address+'</p>\
                     </div>'
 
     var sswitchTwo = '<div class="device" id="' + obj.Address + '">\
@@ -602,25 +612,14 @@ function addScenarioSwitch(obj){
                                 </div>\
                             </div>\
                             <div class="clear"></div>\
-                            <div class="state_area">\
-                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
-                                <br>\
-                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
-                            </div>\
-                            <div class="switch_area">\
+                            <div class="switch_area_scen">\
                                 <div class="switch">\
-                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
-                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
-                                </div>\
-                            </div>\
-                            <div class="switch_area">\
-                                <div class="switch">\
-                                    <input type="button" name="2@0@1" value="全开"/>\
-                                    <input type="button" name="2@0@0" value="全关"/>\
+                                    <input type="button" name="4@1@1" value="双控配置"/>\
+                                    <input type="button" name="4@1@0" value="场景配置"/>\
                                 </div>\
                             </div>\
                         </div>\
-                        <p>场景开关:'+obj.Address+'</p>\
+                        <p>二位场景开关:'+obj.Address+'</p>\
                     </div>'
     var sswitchThree = '<div class="device" id="' + obj.Address + '">\
                         <span class="close"></span>\
@@ -640,31 +639,14 @@ function addScenarioSwitch(obj){
                                 </div>\
                             </div>\
                             <div class="clear"></div>\
-                            <div class="state_area">\
-                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
-                                <br>\
-                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
-                            </div>\
-                            <div class="switch_area">\
+                            <div class="switch_area_scen">\
                                 <div class="switch">\
-                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
-                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
-                                </div>\
-                            </div>\
-                            <div class="switch_area">\
-                                <div class="switch">\
-                                    <input type="button" name="3@0@1" value="全开"/>\
-                                    <input type="button" name="3@0@0" value="全关"/>\
-                                </div>\
-                            </div>\
-                            <div class="switch_area_time">\
-                                <div class="switch">\
-                                    <input type="button" name="3@0@1" value="1分钟全开"/>\
-                                    <input type="button" name="3@0@0" value="1分钟全关"/>\
+                                    <input type="button" name="4@1@1" value="双控配置"/>\
+                                    <input type="button" name="4@1@0" value="场景配置"/>\
                                 </div>\
                             </div>\
                         </div>\
-                        <p>场景开关:'+obj.Address+'</p>\
+                        <p>三位场景开关:'+obj.Address+'</p>\
                     </div>'
     if(obj.DeviceType == "2001"){
         $(".device:last").after(sswitchOne);

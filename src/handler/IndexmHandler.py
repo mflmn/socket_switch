@@ -82,13 +82,15 @@ class DevicesHandler(RequestHandler):
         #  "Command": {"Type": "1101", "State": "1"}}
         address = self.get_argument("address", None)
         macMap = self.application.macMap
-        macMap = {'0x1111111':{'keys':['1','2','3']}}
-        address = '0x%s' % address
+        # macMap = {'0x1111111':{'keys':['1','2','3'], 'isScen':False}}
+        # address = '0x%s' % address
         keys = self.getDeviceKeysById(address)
         # print "DevicesHandler:address:%s" % address
         device = []
         for item in macMap.keys():
-            device = device + self.getDeviceKeysById(item)
+            isScen = macMap[item]['isScen']
+            if not isScen:
+                device = device + self.getDeviceKeysById(item)
         # keys = macMap[address]['keys']
         # keys = ['1', '2', '3']
         # for i in range(0, len(keys)):
@@ -103,30 +105,86 @@ class DevicesHandler(RequestHandler):
         # cmdParse = cmd.split("@")
     def getDeviceKeysById(self, address):
         macMap = self.application.macMap
-        macMap = {'0x1111111': {'keys': ['1', '2', '3']}}
+        # macMap = {'0x1111111': {'keys': ['1', '2', '3']}}
         print "DevicesHandler:address:%s" % address
         keys = macMap[address]['keys']
-        keys = ['1', '2', '3']
+        # keys = ['1', '2', '3']
+        keyList = []
         for i in range(0, len(keys)):
-            keys[i] = address + '@' + keys[i]
+            kStr = address + '@' + keys[i]
+            keyList.append(kStr)
         print "keys:%s" % keys
-        return keys
+        return keyList
 
 
 @route(r'/bind', name='bind')
 class BindHandler(RequestHandler):
     def get(self):
         print "bind"
+        macMap = self.application.macMap
         # {"Address": "000D6F0011002B5F", "GroupId": "0",
         #  "EndpointId": "1", "CommandType": "0106",
         #  "Command": {"Type": "1101", "State": "1"}}
         key = self.get_argument("key", None)
         device = self.get_argument("device", None)
-        ret = {}
-        ret['keys'] = [1111, 2222, 3333]
-        ret['devices'] = ['a1', 'a2', 'b1']
-        msgStr = json.dumps(ret)
-        self.write(ret)
+
+        keyArray = key.split("@")
+        scenAddress = keyArray[0][2:]
+        scenKey = keyArray[1]
+        sIndex = '0x%s' % scenAddress
+        sNodeId = macMap[sIndex]['nodeId']
+
+        deviceArray = device.split("@")
+        devAddress = deviceArray[0][2:]
+        devKey = deviceArray[1]
+        devIndex = '0x%s' % devAddress
+        devNodeId = macMap[devIndex]['nodeId']
+        # ret = {}
+
+        stoDevStr = '{"commands":[{"commandcli":"zdo bind %s %s %s 0x0006 {%s} {%s}"}]}'\
+                    % (sNodeId, scenKey, devKey, scenAddress, devAddress)
+        print "bind:stodev:%s" % stoDevStr
+        self.application.mqttClient.publish(COMMAND_SI, stoDevStr, qos=0, retain=False)
+        devToSStr = '{"commands":[{"commandcli":"zdo bind %s %s %s 0x0006 {%s} {%s}"}]}' \
+                    % (devNodeId, devKey, scenKey, devAddress, scenAddress)
+        print "bind:devtos:%s" % devToSStr
+        self.application.mqttClient.publish(COMMAND_SI, devToSStr, qos=0, retain=False)
+        # zdo bind 0x151D 1 1 0x0006 {D0CF5EFFFEF4E41F} {D0CF5EFFFEF7315A}
+        # ret['keys'] = [1111, 2222, 3333]
+        # ret['devices'] = ['a1', 'a2', 'b1']
+        # msgStr = json.dumps(ret)
+        # self.write(ret)
+
+
+@route(r'/unbind', name='unbind')
+class UnBindHandler(RequestHandler):
+    def get(self):
+        print "unbind"
+        macMap = self.application.macMap
+        key = self.get_argument("key", None)
+        device = self.get_argument("device", None)
+
+        keyArray = key.split("@")
+        scenAddress = keyArray[0][2:]
+        scenKey = keyArray[1]
+        sIndex = '0x%s' % scenAddress
+        sNodeId = macMap[sIndex]['nodeId']
+
+        deviceArray = device.split("@")
+        devAddress = deviceArray[0][2:]
+        devKey = deviceArray[1]
+        devIndex = '0x%s' % devAddress
+        devNodeId = macMap[devIndex]['nodeId']
+        # ret = {}
+        #zdo unbind unicast sNodeId {scenAddress} scenKey 0x0006 {devAddress} devKey
+        stoDevUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}'\
+                    % (sNodeId, scenAddress, scenKey, devAddress, devKey)
+        print "unbind:stodev:%s" % stoDevUnStr
+        self.application.mqttClient.publish(COMMAND_SI, stoDevUnStr, qos=0, retain=False)
+        devToSUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}' \
+                    % (devNodeId, devAddress, devKey, scenAddress, scenKey)
+        print "unbind:devtos:%s" % devToSUnStr
+        self.application.mqttClient.publish(COMMAND_SI, devToSUnStr, qos=0, retain=False)
 
 
 @route(r'/command', name='command')
