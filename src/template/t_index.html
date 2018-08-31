@@ -63,6 +63,34 @@ document.getElementById("btn").onclick=function(){time(this);}
         </div>
         <div id="fade" class="black_overlay"></div>
 
+        <div id="scen" class="white_content">
+            <p>场景配置</p>
+            场景开关列表：
+        <select id="slink" >
+            <option>111</option>
+            <option>222</option>
+            <option>333</option>
+        </select>
+        设备列表：
+        <select id="slink1" >
+            <option></option>
+            <option>aaa</option>
+            <option>bbb</option>
+            <option>ccc</option>
+        </select>
+            操作列表：
+        <select id="slink2" >
+        </select>
+
+        <input id="addtn" type="button" value="添加"/>
+            <div id="scenlist">
+            </div>
+            <p></p>
+            <a href = "javascript:void(0)" onclick = "submitHandler()">提交</a>
+            <a href = "javascript:void(0)" onclick = "document.getElementById('scen').style.display='none';document.getElementById('sfade').style.display='none'">关闭</a>
+        </div>
+        <div id="sfade" class="black_overlay"></div>
+
 <div class="device"></div>
 
 <div class="device" id="1111111">
@@ -82,7 +110,12 @@ document.getElementById("btn").onclick=function(){time(this);}
         <div class="switch_area_scen">
             <div class="switch">
                 <input type="button" name="4@1@1" value="双控配置"/>
-                <input type="button" name="4@1@0" value="场景配置"/>
+                <!--input type="button" name="4@1@0" value="场景配置"/-->
+            </div>
+        </div>
+        <div class="switch_area_scenario">
+            <div class="switch">
+                <input type="button" name="4@1@0" value="场景配置"/-->
             </div>
         </div>
     </div>
@@ -138,6 +171,17 @@ document.getElementById("btn").onclick=function(){time(this);}
                     //console.log(event.data);
                 }
             });
+    });
+
+    $("#addtn").live("click",function(){
+        var key = $("#slink").find("option:selected").text();
+        var device = $("#slink1").find("option:selected").text();
+        var op = $("#slink2").find("option:selected").text();
+        //<p>11@on</p>
+        console.log(key);
+        console.log(device);
+        str = '<p>' + key + ':' + device + ':' + op + '</p>'
+        $("#scenlist").append(str);
     });
 
     $(".switch_area :button").live("click",function(){
@@ -203,7 +247,6 @@ document.getElementById("btn").onclick=function(){time(this);}
         var id = $(this).closest(".device").attr("id");
         document.getElementById('light').style.display='block';
         document.getElementById('fade').style.display='block';
-        //alert(id);
 
         $.ajax({
                 'url' : '/getDevices?address='+id+'&cmd='+name,
@@ -233,11 +276,107 @@ document.getElementById("btn").onclick=function(){time(this);}
                     }
                 }
             });
-        //$(this).parent().remove();
+    });
+
+    $("#slink1").change(function(){
+         console.log("list2:%s", $(this).val());
+         id = $(this).val();
+         $.ajax({
+                'url' : '/getDevMethod?address='+id,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    console.log(msg);
+                },
+                'success' : function(result) {
+                    console.log(result);
+                    $("#slink2").empty();
+                    for(var i =0; i < result.length; i++)
+                    {
+                        str = '<option>' + result[i] + '</option>'
+                        $("#slink2").append(str);
+                    }
+                }
+         });
+    });
+
+    $(".switch_area_scenario :button").live("click",function(){
+        var name = $(this).attr("name");
+        var id = $(this).closest(".device").attr("id");
+        document.getElementById('scen').style.display='block';
+        document.getElementById('sfade').style.display='block';
+        $("#scenlist").empty();
+
+        $.ajax({
+                'url' : '/getDevices?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    $("#link").empty();
+                    $("#link1").empty();
+                    alert("get device error");
+                },
+                'success' : function(result) {
+                    console.log("success");
+                    console.log(result);
+                    console.log(result.keys);
+                    $("#slink").empty();
+                    for(var i =0; i < result.keys.length; i++)
+                    {
+                        str = '<option>' + result.keys[i] + '</option>'
+                        $("#slink").append(str);
+                    }
+                    $("#slink1").empty();
+                    for(var i =0; i < result.devices.length; i++)
+                    {
+                        str = '<option>' + result.devices[i] + '</option>'
+                        $("#slink1").append(str);
+                    }
+                }
+            });
     });
 
 function setDeviceList(obj){
     console.log("set device list");
+}
+
+function submitHandler(){
+    console.log("submit");
+    var obj = $('#scenlist p');
+    var len = obj.length;
+    console.log(obj);
+
+    var sArray = new Array();
+    var sJson = [];
+    for(var i = 0; i < len; i++)
+    {
+        var temp = $('#scenlist p')[i].innerText;
+        sArray[i] = temp
+        sJson.push(temp);
+    }
+    //var scenList = {};
+    //scenList.sData = sArray;
+    //sJson.push(scenList);
+    var jsonStr = JSON.stringify(sJson);
+    $.ajax({
+            'url' : '/createScen?scen='+jsonStr,
+            'type' : 'GET',
+            'cache' : false,
+            'dataType' : 'json',
+            'error': function (msg) {
+                $("#link").empty();
+                $("#link1").empty();
+                alert("get device error");
+                },
+            'success' : function(result) {
+                console.log("create scen success");
+                console.log(result);
+                }
+            });
+    //document.getElementById('scen').style.display='none';
+    //document.getElementById('sfade').style.display='none';
 }
 </script>
 

@@ -107,7 +107,7 @@ class DevicesHandler(RequestHandler):
         macMap = self.application.macMap
         # macMap = {'0x1111111': {'keys': ['1', '2', '3']}}
         print "DevicesHandler:address:%s" % address
-        keys = macMap[address]['keys']
+        keys = [] if not macMap.has_key(address) else macMap[address]['keys']
         # keys = ['1', '2', '3']
         keyList = []
         for i in range(0, len(keys)):
@@ -185,6 +185,89 @@ class UnBindHandler(RequestHandler):
                     % (devNodeId, devAddress, devKey, scenAddress, scenKey)
         print "unbind:devtos:%s" % devToSUnStr
         self.application.mqttClient.publish(COMMAND_SI, devToSUnStr, qos=0, retain=False)
+
+
+@route(r'/getDevMethod', name='getDevMethod')
+class GetDevMethod(RequestHandler):
+    def get(self):
+        print "get device method"
+        macMap = self.application.macMap
+        key = self.get_argument("address", None)
+
+        keyArray = key.split("@")
+        op = ['on', 'off']
+        opStr = json.dumps(op)
+
+        self.write(opStr)
+
+        # ret = {}
+        #zdo unbind unicast sNodeId {scenAddress} scenKey 0x0006 {devAddress} devKey
+        # stoDevUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}'\
+        #             % (sNodeId, scenAddress, scenKey, devAddress, devKey)
+
+
+@route(r'/createScen', name='createScen')
+class CreateScen(RequestHandler):
+    def get(self):
+        macMap = self.application.macMap
+        scen = self.get_argument("scen", None)
+        scen = json.loads(scen)
+        print "CreateScen method,%s" % scen
+        model1 = '{"commands": [{"commandcli": "zcl groups add 0x01 1"}]}'
+        model2 = '{"commands": [{"commandcli": "send %s 1 %s"}]}'
+        model3 = '{"commands": [{"commandcli": "zcl scenes add 0x0001 %s 0X0000 %s %s"}]}'
+        scenID = None
+        scenName = None
+        # length = len(scen)
+        # if length > 0:
+        #     scenStr = scen[0]
+        #     cmd = scenStr.split(':')
+        #     scenKey = cmd[0]
+        #     opKey = cmd[2]
+        #     if opKey == 'on':
+        #         extensionField = '0x01010006'
+        #
+        #     else:
+        #         extensionField = '0x00010006'
+        #     scenParse = scenKey.split('@')
+        #     scenAddress = scenParse[0]
+        #     sNodeId = macMap[scenAddress]['nodeId']
+        #     sEndPID = scenParse[1]
+        #     scenID = '0x0%s' % sEndPID
+        #     scenName = '%s' % sEndPID
+        #     self.application.mqttClient.publish(COMMAND_TOPIC, model1, qos=0, retain=False)
+        #     sendStr = model2 % (sNodeId, sEndPID)
+        #     self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
+        #     msgStr = model3 % (scenID, scenName, extensionField)
+        #     self.application.mqttClient.publish(COMMAND_TOPIC, msgStr, qos=0, retain=False)
+        #     self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
+        for i in range(0, length):
+            scenStr = scen[i]
+            cmd = scenStr.split(':')
+            opKey = cmd[2]
+            if opKey == 'on':
+                extensionField = '0x01010006'
+
+            else:
+                extensionField = '0x00010006'
+            keyStr = ''
+            if i == 0:
+                scenID = '0x0%s' % sEndPID
+                scenName = '%s' % sEndPID
+                keyStr = cmd[0]
+            else:
+                keyStr = cmd[1]
+            scenParse = keyStr.split('@')
+            scenAddress = scenParse[0]
+            sNodeId = macMap[scenAddress]['nodeId']
+            sEndPID = scenParse[1]
+
+            self.application.mqttClient.publish(COMMAND_TOPIC, model1, qos=0, retain=False)
+            sendStr = model2 % (sNodeId, sEndPID)
+            self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
+            msgStr = model3 % (scenID, scenName, extensionField)
+            self.application.mqttClient.publish(COMMAND_TOPIC, msgStr, qos=0, retain=False)
+            self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
 
 
 @route(r'/command', name='command')
