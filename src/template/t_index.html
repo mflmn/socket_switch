@@ -368,11 +368,13 @@ function submitHandler(){
             'error': function (msg) {
                 $("#link").empty();
                 $("#link1").empty();
-                alert("get device error");
+                alert("create scenario error");
                 },
             'success' : function(result) {
                 console.log("create scen success");
                 console.log(result);
+                document.getElementById('scen').style.display='none';
+                document.getElementById('sfade').style.display='none';
                 }
             });
     //document.getElementById('scen').style.display='none';
@@ -730,9 +732,19 @@ function addScenarioSwitch(obj){
                             <div class="switch_area_scen">\
                                 <div class="switch">\
                                     <input type="button" name="4@1@1" value="双控配置"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
                                     <input type="button" name="4@1@0" value="场景配置"/>\
                                 </div>\
                             </div>\
+                            <!--div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="双控配置"/>\
+                                    <input type="button" name="4@1@0" value="场景配置"/>\
+                                </div>\
+                            </div-->\
                         </div>\
                         <p>一位场景开关:'+obj.Address+'</p>\
                     </div>'
@@ -754,9 +766,19 @@ function addScenarioSwitch(obj){
                             <div class="switch_area_scen">\
                                 <div class="switch">\
                                     <input type="button" name="4@1@1" value="双控配置"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
                                     <input type="button" name="4@1@0" value="场景配置"/>\
                                 </div>\
                             </div>\
+                            <!--div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="双控配置"/>\
+                                    <input type="button" name="4@1@0" value="场景配置"/>\
+                                </div>\
+                            </div-->\
                         </div>\
                         <p>二位场景开关:'+obj.Address+'</p>\
                     </div>'
@@ -781,9 +803,19 @@ function addScenarioSwitch(obj){
                             <div class="switch_area_scen">\
                                 <div class="switch">\
                                     <input type="button" name="4@1@1" value="双控配置"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
                                     <input type="button" name="4@1@0" value="场景配置"/>\
                                 </div>\
                             </div>\
+                            <!--div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="双控配置"/>\
+                                    <input type="button" name="4@1@0" value="场景配置"/>\
+                                </div>\
+                            </div-->\
                         </div>\
                         <p>三位场景开关:'+obj.Address+'</p>\
                     </div>'

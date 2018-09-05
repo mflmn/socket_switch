@@ -213,12 +213,13 @@ class CreateScen(RequestHandler):
         scen = self.get_argument("scen", None)
         scen = json.loads(scen)
         print "CreateScen method,%s" % scen
-        model1 = '{"commands": [{"commandcli": "zcl groups add 0x01 1"}]}'
+        model1 = '{"commands": [{"commandcli": "zcl groups add 0x01 \\"1\\""}]}'
+        # self.application.mqttClient.publish(COMMAND_TOPIC, model1, qos=0, retain=False)
         model2 = '{"commands": [{"commandcli": "send %s 1 %s"}]}'
-        model3 = '{"commands": [{"commandcli": "zcl scenes add 0x0001 %s 0X0000 %s %s"}]}'
+        model3 = '{"commands": [{"commandcli": "zcl scenes add 0x0001 %s 0X0000 \\"%s\\" %s"}]}'
         scenID = None
         scenName = None
-        # length = len(scen)
+        length = len(scen)
         # if length > 0:
         #     scenStr = scen[0]
         #     cmd = scenStr.split(':')
@@ -252,22 +253,44 @@ class CreateScen(RequestHandler):
                 extensionField = '0x00010006'
             keyStr = ''
             if i == 0:
+                keyStr = cmd[0]
+                scenParse = keyStr.split('@')
+                scenAddress = scenParse[0]
+                sNodeId = macMap[scenAddress]['nodeId']
+                sEndPID = scenParse[1]
                 scenID = '0x0%s' % sEndPID
                 scenName = '%s' % sEndPID
-                keyStr = cmd[0]
+                self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
+                sendStr = model2 % (sNodeId, sEndPID)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
+                msgStr = model3 % (scenID, scenName, extensionField)
+                self.application.mqttClient.publish(COMMAND_SI, msgStr, qos=0, retain=False)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
+                keyStr = cmd[1]
+                scenParse = keyStr.split('@')
+                scenAddress = scenParse[0]
+                sNodeId = macMap[scenAddress]['nodeId']
+                sEndPID = scenParse[1]
+                self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
+                sendStr = model2 % (sNodeId, sEndPID)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
+                msgStr = model3 % (scenID, scenName, extensionField)
+                self.application.mqttClient.publish(COMMAND_SI, msgStr, qos=0, retain=False)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
             else:
                 keyStr = cmd[1]
-            scenParse = keyStr.split('@')
-            scenAddress = scenParse[0]
-            sNodeId = macMap[scenAddress]['nodeId']
-            sEndPID = scenParse[1]
+                scenParse = keyStr.split('@')
+                scenAddress = scenParse[0]
+                sNodeId = macMap[scenAddress]['nodeId']
+                sEndPID = scenParse[1]
+                print "scen key str:%s" % keyStr
 
-            self.application.mqttClient.publish(COMMAND_TOPIC, model1, qos=0, retain=False)
-            sendStr = model2 % (sNodeId, sEndPID)
-            self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
-            msgStr = model3 % (scenID, scenName, extensionField)
-            self.application.mqttClient.publish(COMMAND_TOPIC, msgStr, qos=0, retain=False)
-            self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
+                self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
+                sendStr = model2 % (sNodeId, sEndPID)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
+                msgStr = model3 % (scenID, scenName, extensionField)
+                self.application.mqttClient.publish(COMMAND_SI, msgStr, qos=0, retain=False)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
 
 
 @route(r'/command', name='command')
