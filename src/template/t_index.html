@@ -683,7 +683,10 @@ function onMessage(event){
             case '1005':
                 addSocket(obj);
                 break;
+            case '2001':
             case '2002':
+            case '2003':
+            case '2004':
                 addScenarioSwitch(obj);
                 break;
             default:
@@ -818,6 +821,41 @@ function addScenarioSwitch(obj){
                         </div>\
                         <p>三位场景开关:'+obj.Address+'</p>\
                     </div>'
+    var sswitchFour = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@1@1" value="on"/>\
+                                    <input type="button" name="3@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@2@1" value="on"/>\
+                                    <input type="button" name="3@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="双控配置"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@0" value="场景配置"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>四位场景开关:'+obj.Address+'</p>\
+                    </div>'
     if(obj.DeviceType == "2001"){
         $(".device:last").after(sswitchOne);
     }
@@ -826,6 +864,9 @@ function addScenarioSwitch(obj){
     }
     else if(obj.DeviceType == "2003"){
         $(".device:last").after(sswitchThree);
+    }
+    else if(obj.DeviceType == "2004"){
+        $(".device:last").after(sswitchFour);
     }
 }
 </script>

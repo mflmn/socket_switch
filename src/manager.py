@@ -241,6 +241,13 @@ def handleResp(msg):
                     macMap[mac]['keys'] = ['1', '2', '3']
                     macMap[mac]['isScen'] = True
                     addDevice(mac, deviceType)
+                elif modelId == '53323130302D453831372D30343034':
+                    print "four scenario switch"
+                    deviceType = '2004'
+                    macMap[mac]['deviceType'] = '2004'
+                    macMap[mac]['keys'] = ['1', '2', '3', '4']
+                    macMap[mac]['isScen'] = True
+                    addDevice(mac, deviceType)
                     # deviceType = '1003'
                     # macMap[mac]['deviceType'] = '1003'
                     # addDevice(mac, deviceType)
