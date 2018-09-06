@@ -222,6 +222,11 @@ def handleResp(msg):
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453831342D30343031':
                     print "one scenario switch"
+                    deviceType = '2001'
+                    macMap[mac]['deviceType'] = '2001'
+                    macMap[mac]['keys'] = ['1']
+                    macMap[mac]['isScen'] = True
+                    addDevice(mac, deviceType)
                 elif modelId == '53323130302D453831352D30343032':
                     print "two scenario switch"
                     deviceType = '2002'
@@ -231,6 +236,11 @@ def handleResp(msg):
                     addDevice(mac, deviceType)
                 elif modelId == '53323130302D453831362D30343033':
                     print "three scenario switch"
+                    deviceType = '2003'
+                    macMap[mac]['deviceType'] = '2003'
+                    macMap[mac]['keys'] = ['1', '2', '3']
+                    macMap[mac]['isScen'] = True
+                    addDevice(mac, deviceType)
                     # deviceType = '1003'
                     # macMap[mac]['deviceType'] = '1003'
                     # addDevice(mac, deviceType)
