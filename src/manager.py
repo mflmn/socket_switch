@@ -132,6 +132,7 @@ def getModeId(msg):
         cmd2 = '{"commands":[{"commandcli":"send %s 1 %s"}]}' % (nodeId, endPoint)
         client.publish(COMMAND_SI, cmd2, qos=0, retain=False)
         macMap[mac]['new'] = True
+        macMap[mac]['lightStatus'] = True
     else:
         print 'join replicate'
 

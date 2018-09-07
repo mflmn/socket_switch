@@ -154,6 +154,22 @@ class BindHandler(RequestHandler):
         # ret['devices'] = ['a1', 'a2', 'b1']
         # msgStr = json.dumps(ret)
         # self.write(ret)
+        led = macMap[sIndex]['lightStatus']
+        if led:
+            state = '0'
+        else:
+            state = '1'
+        nodeId = sNodeId
+        print "bind:led:nodeId:%s" % nodeId
+        model1 = '{"commands": [{"commandcli": "zcl mfg-code 0x117B "}]}'
+        print "bind:led:model1:%s" % model1
+        self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
+        model2 = '{"commands": [{"commandcli": "zcl global write 0xFC56 0x0000 0x20 {0%s}"}]}' % state
+        print "bind:led:model2:%s" % model2
+        self.application.mqttClient.publish(COMMAND_SI, model2, qos=0, retain=False)
+        model3 = '{"commands": [{"commandcli": "send %s 1 1"}]}' % nodeId
+        print "bind:led:model3:%s" % model3
+        self.application.mqttClient.publish(COMMAND_SI, model3, qos=0, retain=False)
 
 
 @route(r'/unbind', name='unbind')
@@ -220,28 +236,7 @@ class CreateScen(RequestHandler):
         scenID = None
         scenName = None
         length = len(scen)
-        # if length > 0:
-        #     scenStr = scen[0]
-        #     cmd = scenStr.split(':')
-        #     scenKey = cmd[0]
-        #     opKey = cmd[2]
-        #     if opKey == 'on':
-        #         extensionField = '0x01010006'
-        #
-        #     else:
-        #         extensionField = '0x00010006'
-        #     scenParse = scenKey.split('@')
-        #     scenAddress = scenParse[0]
-        #     sNodeId = macMap[scenAddress]['nodeId']
-        #     sEndPID = scenParse[1]
-        #     scenID = '0x0%s' % sEndPID
-        #     scenName = '%s' % sEndPID
-        #     self.application.mqttClient.publish(COMMAND_TOPIC, model1, qos=0, retain=False)
-        #     sendStr = model2 % (sNodeId, sEndPID)
-        #     self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
-        #     msgStr = model3 % (scenID, scenName, extensionField)
-        #     self.application.mqttClient.publish(COMMAND_TOPIC, msgStr, qos=0, retain=False)
-        #     self.application.mqttClient.publish(COMMAND_TOPIC, sendStr, qos=0, retain=False)
+
         for i in range(0, length):
             scenStr = scen[i]
             cmd = scenStr.split(':')
@@ -256,41 +251,112 @@ class CreateScen(RequestHandler):
                 keyStr = cmd[0]
                 scenParse = keyStr.split('@')
                 scenAddress = scenParse[0]
-                sNodeId = macMap[scenAddress]['nodeId']
-                sEndPID = scenParse[1]
-                scenID = '0x0%s' % sEndPID
-                scenName = '%s' % sEndPID
+                scenAddr = scenAddress
+                sNID = macMap[scenAddress]['nodeId']
+                # sNID = sNodeId
+                sEID = scenParse[1]
+                # sEID = sEndPID
+                scenID = '0x0%s' % sEID
+                scenName = '%s' % sEID
+
+                keyStr = cmd[1]
+                scenParse = keyStr.split('@')
+                scenAddress = scenParse[0]
+                devAddr = scenAddress
+                dNID = macMap[scenAddress]['nodeId']
+                # dNID = sNodeId
+                dEID = scenParse[1]
+                # dEID = sEndPID
+
+                # unbind
+                stoDevUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}' \
+                              % (sNID, scenAddr[2:], sEID, devAddr[2:], dEID)
+                print "CreateScen:unbind:stodev:%s" % stoDevUnStr
+                self.application.mqttClient.publish(COMMAND_SI, stoDevUnStr, qos=0, retain=False)
+
+                devToSUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}' \
+                              % (dNID, devAddr[2:], dEID, scenAddr[2:], sEID)
+                print "CreateScen:unbind:devtos:%s" % devToSUnStr
+                self.application.mqttClient.publish(COMMAND_SI, devToSUnStr, qos=0, retain=False)
+
+                #create scenario
                 self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
-                sendStr = model2 % (sNodeId, sEndPID)
+                sendStr = model2 % (sNID, sEID)
                 self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
                 msgStr = model3 % (scenID, scenName, extensionField)
                 self.application.mqttClient.publish(COMMAND_SI, msgStr, qos=0, retain=False)
                 self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
-                keyStr = cmd[1]
-                scenParse = keyStr.split('@')
-                scenAddress = scenParse[0]
-                sNodeId = macMap[scenAddress]['nodeId']
-                sEndPID = scenParse[1]
-                self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
-                sendStr = model2 % (sNodeId, sEndPID)
-                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
-                msgStr = model3 % (scenID, scenName, extensionField)
-                self.application.mqttClient.publish(COMMAND_SI, msgStr, qos=0, retain=False)
-                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
-            else:
-                keyStr = cmd[1]
-                scenParse = keyStr.split('@')
-                scenAddress = scenParse[0]
-                sNodeId = macMap[scenAddress]['nodeId']
-                sEndPID = scenParse[1]
-                print "scen key str:%s" % keyStr
 
                 self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
-                sendStr = model2 % (sNodeId, sEndPID)
+                sendStr = model2 % (dNID, dEID)
                 self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
                 msgStr = model3 % (scenID, scenName, extensionField)
                 self.application.mqttClient.publish(COMMAND_SI, msgStr, qos=0, retain=False)
                 self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
+
+            else:
+                # keyStr = cmd[1]
+                # scenParse = keyStr.split('@')
+                # scenAddress = scenParse[0]
+                # sNodeId = macMap[scenAddress]['nodeId']
+                # sEndPID = scenParse[1]
+
+                keyStr = cmd[1]
+                scenParse = keyStr.split('@')
+                scenAddress = scenParse[0]
+                devAddr = scenAddress
+                sNodeId = macMap[scenAddress]['nodeId']
+                dNID = sNodeId
+                sEndPID = scenParse[1]
+                dEID = sEndPID
+                print "scen key str:%s" % keyStr
+
+                keyStr = cmd[0]
+                scenParse = keyStr.split('@')
+                scenAddress = scenParse[0]
+                scenAddr = scenAddress
+                sNodeId = macMap[scenAddress]['nodeId']
+                sNID = sNodeId
+                sEndPID = scenParse[1]
+                sEID = sEndPID
+
+                # unbind
+                stoDevUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}' \
+                              % (sNID, scenAddr[2:], sEID, devAddr[2:], dEID)
+                print "CreateScen:unbind:stodev:%s" % stoDevUnStr
+                self.application.mqttClient.publish(COMMAND_SI, stoDevUnStr, qos=0, retain=False)
+                devToSUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}' \
+                              % (dNID, devAddr[2:], dEID, scenAddr[2:], sEID)
+                print "CreateScen:unbind:devtos:%s" % devToSUnStr
+                self.application.mqttClient.publish(COMMAND_SI, devToSUnStr, qos=0, retain=False)
+
+
+                #create scenario
+                self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
+                sendStr = model2 % (dNID, dEID)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
+                msgStr = model3 % (scenID, scenName, extensionField)
+                self.application.mqttClient.publish(COMMAND_SI, msgStr, qos=0, retain=False)
+                self.application.mqttClient.publish(COMMAND_SI, sendStr, qos=0, retain=False)
+
+                # keyStr = cmd[0]
+                # scenParse = keyStr.split('@')
+                # scenAddress = scenParse[0]
+                # scenAddr = scenAddress
+                # sNodeId = macMap[scenAddress]['nodeId']
+                # sNID = sNodeId
+                # sEndPID = scenParse[1]
+                # sEID = sEndPID
+                #
+                # # unbind
+                # stoDevUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}' \
+                #               % (sNID, scenAddr, sEID, devAddr, dEID)
+                # print "CreateScen:unbind:stodev:%s" % stoDevUnStr
+                # self.application.mqttClient.publish(COMMAND_SI, stoDevUnStr, qos=0, retain=False)
+                # devToSUnStr = '{"commands":[{"commandcli":"zdo unbind unicast %s {%s} %s 0x0006 {%s} %s"}]}' \
+                #               % (dNID, devAddr, dEID, scenAddr, sEID)
+                # print "CreateScen:unbind:devtos:%s" % devToSUnStr
+                # self.application.mqttClient.publish(COMMAND_SI, devToSUnStr, qos=0, retain=False)
 
 
 @route(r'/command', name='command')
@@ -364,6 +430,12 @@ class CommandHandler(RequestHandler):
         model3 = '{"commands": [{"commandcli": "send %s 1 1"}]}' % nodeId
         print "led:model3:%s" % model3
         self.application.mqttClient.publish(COMMAND_SI, model3, qos=0, retain=False)
+        if state == '0':
+            print "change led to status"
+            self.application.macMap[address]['lightStatus'] = True
+        else:
+            print "change led to location"
+            self.application.macMap[address]['lightStatus'] = False
 
     def lockControl(self, address, state):
         macMap = self.application.macMap
