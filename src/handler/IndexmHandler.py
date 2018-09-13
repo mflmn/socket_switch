@@ -5,6 +5,7 @@ from lib.route import route
 from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler
 import json
+import socket
 
 socket_handlers = set()
 JOIN_TOPIC = '/network/join'
@@ -28,7 +29,11 @@ def send_message(message):
 class IndexmHandler(RequestHandler):
 
     def get(self):
-        self.render('t_index.html')
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+        self.render('t_index.html', ip=ip)
         # self.render('test.html')
 
 

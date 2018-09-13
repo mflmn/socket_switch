@@ -14,10 +14,18 @@ import threading
 import json
 from handler import IndexmHandler
 
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(('8.8.8.8', 80))
+ip = s.getsockname()[0]
+
 
 define('port', default=8080, type=int)
 # mqttHost = '106.14.135.47'
-mqttHost = '192.168.31.223'
+# mqttHost = '192.168.31.223'
+mqttHost = ip
+print 'mqtthost:%s' % mqttHost
 mqttPort = 1883
 client_id = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
 client = mqtt.Client(client_id)

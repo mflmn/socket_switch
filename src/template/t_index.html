@@ -11,6 +11,7 @@
 <body class="body_index">
 <div class="input_join">
     <input type="button" id="btn" class="btn_mfyzm" value="允许加入网路" />
+    <p id="ip" display="none">{{ip}}</p>
    <script type="text/javascript">
     var wait=180;
     document.getElementById("btn").disabled = false;
@@ -386,8 +387,10 @@ function submitHandler(){
 
 <script>
 $(document).ready(function() {
-    webSocket = new WebSocket('ws://'+'192.168.230.140:8080'+'/startWS');
-    //webSocket = new WebSocket('ws://'+'192.168.1.11:8080'+'/startWS');
+    ip = $('#ip').text()+':8080';
+    console.log(ip);
+    //webSocket = new WebSocket('ws://'+'192.168.230.140:8080'+'/startWS');
+    webSocket = new WebSocket('ws://'+ip+'/startWS');
     webSocket.onerror = function (event) {
       onError(event);
     };
