@@ -131,6 +131,20 @@ document.getElementById("btn").onclick=function(){time(this);}
 
     $(".close").live("click",function(){
         $(this).parent().remove();
+        var id = $(this).closest(".device").attr("id");
+        console.log(id);
+        $.ajax({
+                'url' : '/leave?address='+id,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    console.log("remove failed");
+                },
+                'success' : function(result) {
+                    console.log("remove success");
+                }
+            });
     });
 
     $("#bindbtn").live("click",function(){

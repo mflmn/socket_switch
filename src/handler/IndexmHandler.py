@@ -78,6 +78,27 @@ class JoinNetworkHandler(RequestHandler):
         self.application.mqttClient.publish(JOIN_TOPIC_SI, joinMsg, qos=0, retain=False)
 
 
+@route(r'/leave', name='leave')
+class LeaveNetworkHandler(RequestHandler):
+
+    def get(self):
+        print "start leave"
+        address = self.get_argument("address", None)
+        macMap = self.application.macMap
+        address = '0x%s' % address
+        print "leave:address:%s" % address
+        if macMap.has_key(address):
+            nodeId = macMap[address]['nodeId']
+            leaveMsg = '{"commands":[{"commandcli":"zdo leave %s 0 0"}]}' % nodeId
+            self.application.mqttClient.publish(COMMAND_SI, leaveMsg, qos=0, retain=False)
+            print macMap
+            macMap.pop(address, False)
+            print macMap
+        else:
+            print "not found address:%s" % address
+
+
+
 @route(r'/getDevices', name='getDevices')
 class DevicesHandler(RequestHandler):
     def get(self):
