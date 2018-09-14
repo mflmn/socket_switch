@@ -121,6 +121,8 @@ class DevicesHandler(RequestHandler):
         # print "DevicesHandler:address:%s" % address
         device = []
         for item in macMap.keys():
+            if item == 'ip':
+                continue
             isScen = macMap[item]['isScen']
             if not isScen:
                 device = device + self.getDeviceKeysById(item)

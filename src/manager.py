@@ -266,7 +266,9 @@ def handleResp(msg):
                     print "unknow model id:%s" % modelId
                     deviceType = 'unknow'
                     macMap[mac]['deviceType'] = 'unknow'
-                    addDevice(mac, deviceType)
+                    ret = macMap.pop(mac, False)
+                    print 'unknow model mac:%s' % mac
+                    # addDevice(mac, deviceType)
     elif clusterId == '0x0B04':
         changeStatus(obj)
     print macMap
