@@ -55,13 +55,19 @@ class WSHandler(WebSocketHandler):
         for k, v in macMap.items():
             msg = {}
             print "add new device to front end from cache####"
-            msg['Action'] = 'ReportJoin'
-            msg['DeviceType'] = v['deviceType']
-            print "cache:devcie:%s" % v
-            msg['Address'] = k
-            msgStr = json.dumps(msg)
+            if k != 'ip':
+                msg['Action'] = 'ReportJoin'
+                if v['deviceType'] == 'unknow':
+                    print 'not found'
+                    continue
+                msg['DeviceType'] = v['deviceType']
+                print "cache:devcie:%s" % v
+                msg['Address'] = k
+                msgStr = json.dumps(msg)
 
-            self.write_message(msgStr)
+                self.write_message(msgStr)
+            else:
+                print 'ip:%s' % k
 
     def on_close(self):
         print 'close ws....'
