@@ -29,10 +29,11 @@ def send_message(message):
 class IndexmHandler(RequestHandler):
 
     def get(self):
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
+        macMap = self.application.macMap
+        ip = macMap['ip']
+        # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # s.connect(('8.8.8.8', 80))
+        # ip = s.getsockname()[0]
         self.render('t_index.html', ip=ip)
         # self.render('test.html')
 
@@ -85,7 +86,7 @@ class LeaveNetworkHandler(RequestHandler):
         print "start leave"
         address = self.get_argument("address", None)
         macMap = self.application.macMap
-        address = '0x%s' % address
+        # address = '0x%s' % address
         print "leave:address:%s" % address
         if macMap.has_key(address):
             nodeId = macMap[address]['nodeId']

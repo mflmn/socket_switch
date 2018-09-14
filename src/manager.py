@@ -19,6 +19,8 @@ import socket
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(('8.8.8.8', 80))
 ip = s.getsockname()[0]
+macMap = {}
+macMap['ip'] = ip
 
 
 define('port', default=8080, type=int)
@@ -39,7 +41,7 @@ ZCL_RESP_SI = 'gw/90FD9FFFFE19BB86/zclresponse'
 DEVICE_LEAVE_SI = 'gw/90FD9FFFFE19BB86/deviceleft'
 
 
-macMap = {}
+
 
 
 
