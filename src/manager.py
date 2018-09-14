@@ -213,6 +213,12 @@ def handleResp(msg):
                     macMap[mac]['keys'] = ['1', '2']
                     macMap[mac]['isScen'] = False
                     addDevice(mac, deviceType)
+                elif modelId == '53323130302D453831312D31303034':
+                    deviceType = '1104'
+                    macMap[mac]['deviceType'] = '1104'
+                    macMap[mac]['keys'] = ['1', '2', '3', '4']
+                    macMap[mac]['isScen'] = False
+                    addDevice(mac, deviceType)
                 elif modelId == '53323130302D453830382D31303031':
                     deviceType = '1101'
                     macMap[mac]['deviceType'] = '1101'

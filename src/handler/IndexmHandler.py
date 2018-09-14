@@ -424,7 +424,7 @@ class CommandHandler(RequestHandler):
         btnType = cmdParse[0]
         state = cmdParse[2]
         address = address[2:]
-        if btnType == '4':
+        if btnType == '8':
             self.led(address, state)
             return
 

@@ -441,8 +441,8 @@ function addSwith(obj){
                             </div>\
                             <div class="switch_area">\
                                 <div class="switch">\
-                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
-                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                    <input type="button" name="8@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="8@1@0" value="状态指示灯"/>\
                                 </div>\
                             </div>\
                         </div>\
@@ -470,8 +470,8 @@ function addSwith(obj){
                             </div>\
                             <div class="switch_area">\
                                 <div class="switch">\
-                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
-                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                    <input type="button" name="8@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="8@1@0" value="状态指示灯"/>\
                                 </div>\
                             </div>\
                             <div class="switch_area">\
@@ -508,8 +508,56 @@ function addSwith(obj){
                             </div>\
                             <div class="switch_area">\
                                 <div class="switch">\
-                                    <input type="button" name="4@1@1" value="位置指示灯"/>\
-                                    <input type="button" name="4@1@0" value="状态指示灯"/>\
+                                    <input type="button" name="8@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="8@1@0" value="状态指示灯"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="全开"/>\
+                                    <input type="button" name="3@0@0" value="全关"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_time">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="1分钟全开"/>\
+                                    <input type="button" name="3@0@0" value="1分钟全关"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>开关:'+obj.Address+'</p>\
+                    </div>'
+    var switchFour = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="on"/>\
+                                    <input type="button" name="4@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="4@2@1" value="on"/>\
+                                    <input type="button" name="4@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="4@3@1" value="on"/>\
+                                    <input type="button" name="4@3@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="4@4@1" value="on"/>\
+                                    <input type="button" name="4@4@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                设备当前状态:<input type="text" size="45" name="st" value="device state"/>\
+                                <br>\
+                                指  示  灯  状  态:<input type="text" size="45" name="lt" value="light state"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="8@1@1" value="位置指示灯"/>\
+                                    <input type="button" name="8@1@0" value="状态指示灯"/>\
                                 </div>\
                             </div>\
                             <div class="switch_area">\
@@ -536,6 +584,9 @@ function addSwith(obj){
     }
     else if(obj.DeviceType == "1103"){
         $(".device:last").after(switchThree);
+    }
+    else if(obj.DeviceType == "1104"){
+        $(".device:last").after(switchFour);
     }
     //console.log(event.data);
     //$(":text").val(obj.State);
@@ -697,6 +748,7 @@ function onMessage(event){
             case '1101':
             case '1102':
             case '1103':
+            case '1104':
                 addSwith(obj);
                 break;
             case '1003':
