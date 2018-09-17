@@ -57,6 +57,9 @@ class WSHandler(WebSocketHandler):
             print "add new device to front end from cache####"
             if k != 'ip':
                 msg['Action'] = 'ReportJoin'
+                if not v.has_key('deviceType'):
+                    print 'new device, not input type'
+                    continue
                 if v['deviceType'] == 'unknow':
                     print 'not found'
                     continue
@@ -196,7 +199,7 @@ class BindHandler(RequestHandler):
             state = '1'
         nodeId = sNodeId
         print "bind:led:nodeId:%s" % nodeId
-        model1 = '{"commands": [{"commandcli": "zcl mfg-code 0x117B "}]}'
+        model1 = '{"commands": [{"commandcli": "zcl mfg-code 0x1254 "}]}'
         print "bind:led:model1:%s" % model1
         self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
         model2 = '{"commands": [{"commandcli": "zcl global write 0xFC56 0x0000 0x20 {0%s}"}]}' % state
@@ -456,7 +459,7 @@ class CommandHandler(RequestHandler):
         print "led:address:%s" % address
         nodeId = macMap[address]['nodeId']
         print "led:nodeId:%s" % nodeId
-        model1 = '{"commands": [{"commandcli": "zcl mfg-code 0x117B "}]}'
+        model1 = '{"commands": [{"commandcli": "zcl mfg-code 0x1254 "}]}'
         print "led:model1:%s" % model1
         self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
         model2 = '{"commands": [{"commandcli": "zcl global write 0xFC56 0x0000 0x20 {0%s}"}]}' % state
@@ -478,7 +481,7 @@ class CommandHandler(RequestHandler):
         print "lockControl:address:%s" % address
         nodeId = macMap[address]['nodeId']
         print "lockControl:nodeId:%s" % nodeId
-        model1 = '{"commands": [{"commandcli": "zcl mfg-code 0x117B "}]}'
+        model1 = '{"commands": [{"commandcli": "zcl mfg-code 0x1254 "}]}'
         print "lockControl:model1:%s" % model1
         self.application.mqttClient.publish(COMMAND_SI, model1, qos=0, retain=False)
         model2 = '{"commands": [{"commandcli": "zcl global write 0xFC56 0x0001 0x20 {0%s}"}]}' % state
