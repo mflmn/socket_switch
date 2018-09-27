@@ -138,8 +138,7 @@ def on_connect(client, userdata, flags, rc):
 def getModeId(msg):
     global client
     global macMap
-    global GWID
-    global PUB_CMD
+
     obj = json.loads(msg)
     nodeId = obj['nodeId']
     mac = obj['deviceEndpoint']['eui64']
@@ -149,7 +148,7 @@ def getModeId(msg):
         macMap[mac]['nodeId'] = nodeId
         endPoint = '1'
         cmd1 = '{"commands":[{"commandcli":"zcl global read 0x0000 0x0005"}]}'
-        PUB_CMD = PUB_CMD % GWID['id']
+
         client.publish(PUB_CMD, cmd1, qos=0, retain=False)
         cmd2 = '{"commands":[{"commandcli":"send %s 1 %s"}]}' % (nodeId, endPoint)
         client.publish(PUB_CMD, cmd2, qos=0, retain=False)
@@ -338,6 +337,8 @@ def on_message(client, userdata, msg):
     elif temp[2] == 'heartbeat':
         if not GWID.has_key('id'):
             GWID['id'] = temp[1]
+            global PUB_CMD
+            PUB_CMD = PUB_CMD % GWID['id']
             print GWID
     #
     # if(msg.topic == DEVICE_JOIN_SI):
