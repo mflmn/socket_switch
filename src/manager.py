@@ -21,12 +21,13 @@ s.connect(('8.8.8.8', 80))
 ip = s.getsockname()[0]
 macMap = {}
 macMap['ip'] = ip
+GWID = {}
 
 
 define('port', default=8080, type=int)
 # mqttHost = '106.14.135.47'
-# mqttHost = '192.168.31.223'
-mqttHost = ip
+mqttHost = '192.168.31.234'
+# mqttHost = ip
 print 'mqtthost:%s' % mqttHost
 mqttPort = 1883
 client_id = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
@@ -35,10 +36,16 @@ client = mqtt.Client(client_id)
 DEVICE_JOIN = '/device/join'
 DEVICE_STATUS = '/device/status'
 
-DEVICE_JOIN_SI = 'gw/90FD9FFFFE19BB86/devicejoined'
-COMMAND_SI = 'gw/90FD9FFFFE19BB86/commands'
-ZCL_RESP_SI = 'gw/90FD9FFFFE19BB86/zclresponse'
-DEVICE_LEAVE_SI = 'gw/90FD9FFFFE19BB86/deviceleft'
+# DEVICE_JOIN_SI = 'gw/90FD9FFFFE19BB86/devicejoined'
+DEVICE_JOIN_SI = 'gw/+/devicejoined'
+# COMMAND_SI = 'gw/90FD9FFFFE19BB86/commands'
+COMMAND_SI = 'gw/+/commands'
+# ZCL_RESP_SI = 'gw/90FD9FFFFE19BB86/zclresponse'
+ZCL_RESP_SI = 'gw/+/zclresponse'
+# DEVICE_LEAVE_SI = 'gw/90FD9FFFFE19BB86/deviceleft'
+DEVICE_LEAVE_SI = 'gw/+/deviceleft'
+
+PUB_CMD = 'gw/%s/commands'
 
 
 
@@ -54,6 +61,7 @@ class Application(tornado.web.Application):
         global client
         self.mqttClient = client
         self.macMap = macMap
+        self.gwID = GWID
         # self.memcachedb = memcachedb
         # self.session_store = MemcacheSessionStore(memcachedb)
         
@@ -118,7 +126,8 @@ def startMQTT():
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-    client.subscribe("test")
+    # client.subscribe("test")
+    client.subscribe("gw/+/heartbeat")
     # client.subscribe(DEVICE_JOIN)
     client.subscribe(DEVICE_JOIN_SI)
     # client.subscribe(DEVICE_STATUS)
@@ -129,6 +138,8 @@ def on_connect(client, userdata, flags, rc):
 def getModeId(msg):
     global client
     global macMap
+    global GWID
+    global PUB_CMD
     obj = json.loads(msg)
     nodeId = obj['nodeId']
     mac = obj['deviceEndpoint']['eui64']
@@ -138,9 +149,10 @@ def getModeId(msg):
         macMap[mac]['nodeId'] = nodeId
         endPoint = '1'
         cmd1 = '{"commands":[{"commandcli":"zcl global read 0x0000 0x0005"}]}'
-        client.publish(COMMAND_SI, cmd1, qos=0, retain=False)
+        PUB_CMD = PUB_CMD % GWID['id']
+        client.publish(PUB_CMD, cmd1, qos=0, retain=False)
         cmd2 = '{"commands":[{"commandcli":"send %s 1 %s"}]}' % (nodeId, endPoint)
-        client.publish(COMMAND_SI, cmd2, qos=0, retain=False)
+        client.publish(PUB_CMD, cmd2, qos=0, retain=False)
         macMap[mac]['new'] = True
         macMap[mac]['lightStatus'] = True
     else:
@@ -310,18 +322,32 @@ def removeDevice(msg):
 
 
 def on_message(client, userdata, msg):
-    # global macMap
     payload = msg.payload.decode("utf-8")
-    print(msg.topic+" : "+payload)
-    # IndexmHandler.send_message(msg.payload.decode("utf-8"))
-    if(msg.topic == DEVICE_JOIN_SI):
+
+    global GWID
+    temp = msg.topic.split('/')
+    if temp[2] != 'heartbeat':
+        print(msg.topic + " : " + payload)
+        print "temp[2]:%s" % temp[2]
+    if temp[2] == 'devicejoined':
         getModeId(payload)
-    elif(msg.topic == DEVICE_LEAVE_SI):
+    elif temp[2] == 'deviceleft':
         removeDevice(payload)
-    elif(msg.topic == ZCL_RESP_SI):
+    elif temp[2] == 'zclresponse':
         handleResp(payload)
-    # IndexmHandler.send_message(msg.payload)
-    # obj = json.load(msg.payload)
+    elif temp[2] == 'heartbeat':
+        if not GWID.has_key('id'):
+            GWID['id'] = temp[1]
+            print GWID
+    #
+    # if(msg.topic == DEVICE_JOIN_SI):
+    #     getModeId(payload)
+    # elif(msg.topic == DEVICE_LEAVE_SI):
+    #     removeDevice(payload)
+    # elif(msg.topic == ZCL_RESP_SI):
+    #     handleResp(payload)
+    # elif msg.topic == 'gw/90FD9FFFFE19BB26/heartbeat':
+    #     print 'heart===='
 
 
 if __name__ == '__main__':

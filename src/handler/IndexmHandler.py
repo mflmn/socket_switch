@@ -11,9 +11,11 @@ socket_handlers = set()
 JOIN_TOPIC = '/network/join'
 COMMAND_TOPIC = '/device/command'
 
-JOIN_TOPIC_SI = 'gw/90FD9FFFFE19BB86/commands'
+# JOIN_TOPIC_SI = 'gw/90FD9FFFFE19BB86/commands'
+JOIN_TOPIC_SI = 'gw/%s/commands'
 
-COMMAND_SI = 'gw/90FD9FFFFE19BB86/commands'
+# COMMAND_SI = 'gw/90FD9FFFFE19BB86/commands'
+COMMAND_SI = 'gw/%s/commands'
 
 
 def send_message(message):
@@ -84,6 +86,10 @@ class JoinNetworkHandler(RequestHandler):
 
     def get(self):
         print "join pub msg"
+        global JOIN_TOPIC_SI
+        global COMMAND_SI
+        JOIN_TOPIC_SI = JOIN_TOPIC_SI % self.application.gwID['id']
+        COMMAND_SI = COMMAND_SI % self.application.gwID['id']
         joinMsg = '{"commands":[{"command":"plugin network-creator-security open-network","postDelayMs":100}]}'
         self.application.mqttClient.publish(JOIN_TOPIC_SI, joinMsg, qos=0, retain=False)
 
