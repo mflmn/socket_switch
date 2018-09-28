@@ -26,8 +26,8 @@ GWID = {}
 
 define('port', default=8080, type=int)
 # mqttHost = '106.14.135.47'
-mqttHost = '192.168.31.234'
-# mqttHost = ip
+# mqttHost = '192.168.31.234'
+mqttHost = ip
 print 'mqtthost:%s' % mqttHost
 mqttPort = 1883
 client_id = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))

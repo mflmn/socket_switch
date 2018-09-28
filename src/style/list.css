@@ -2,7 +2,7 @@
 .device{
 border: 1px solid #dddddd;
 #text-align: center;
-margin: 15px 400px 0px 400px;
+margin: 15px 300px 0px 300px;
 }
 
 .input_join{
@@ -37,11 +37,11 @@ margin: 0px 0px 0px 0px;
 #margin-left:auto;
 #margin-right:auto;
 #border: 1px solid #dddddd;
-width: 100px;
+width: 130px;
 float:left;
 }
 .state_area{
-border: 1px solid #dddddd;
+border: 0px solid #dddddd;
 #float:right;
 }
 .clear{
